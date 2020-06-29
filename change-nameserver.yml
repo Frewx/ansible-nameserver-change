@@ -1,0 +1,4 @@
+- name: Start nameserver change
+  hosts: all
+  roles:
+     - nameserver

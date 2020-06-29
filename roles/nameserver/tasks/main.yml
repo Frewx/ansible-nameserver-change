@@ -1,0 +1,52 @@
+---
+# tasks file for resolv.conf
+
+- name: CENTOS // Make sure line 'dns=none' is set in /etc/NetworkManager/NetworkManager.conf
+  becomes: yes
+  ini_file:
+    path: /etc/NetworkManager/NetworkManager.conf
+    state: present
+    no_extra_spaces: yes
+    section: main
+    option: dns
+    value: none
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify:
+    - reload NetworkManager
+  when: ansible_distribution =='CentOS'
+- name: CENTOS // Deploy resolv.conf template
+  become: yes
+  template:
+    src: roles/resolv.conf/templates/resolv.conf.j2.dynamic
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify:
+    - reload NetworkManager
+  when: ansible_distribution =='CentOS'
+
+- name: UBUNTU18.04 // Deploy netplan yaml
+  become: yes
+  template:
+    src: roles/resolv.conf/templates/50-cloud-init.yaml
+    dest: /etc/netplan/50-cloud-init.yaml
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify:
+    - apply netplan configuration
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+
+- name: WINDOWS // Try to change adapter values  
+  win_dns_client:
+    adapter_names: "{{ ansible_interfaces[0].connection_name }}"
+    ipv4_addresses: 
+    - "{{ dns_servers.dns1 }}"
+    - "{{ dns_servers.dns2 }}"
+  when: ansible_os_family == "Windows"

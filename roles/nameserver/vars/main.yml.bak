@@ -1,0 +1,6 @@
+---
+# vars file for resolv.conf 
+
+nameservers:
+  - 193.192.98.16
+  - 193.192.98.8

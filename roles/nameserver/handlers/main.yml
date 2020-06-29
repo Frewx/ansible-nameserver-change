@@ -1,0 +1,9 @@
+---
+# handlers file for resolv.conf
+- name: reload NetworkManager
+  service:
+    name: NetworkManager
+    state: reloaded
+
+- name: apply netplan configuration
+  shell: netplan apply
